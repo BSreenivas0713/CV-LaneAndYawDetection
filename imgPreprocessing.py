@@ -31,18 +31,22 @@ def preprocess(frame):
     sobel_mag = np.uint8(sobel_mag / np.max(sobel_mag) * 255)
     sobel_mag = cv2.equalizeHist(sobel_mag)
     _, sobel_mag = cv2.threshold(sobel_mag, 200, 255, cv2.THRESH_BINARY)
-
     finalImg = cv2.bitwise_or(finalImg, sobel_mag)
+
+    kernel = np.ones((5, 5), np.uint8)
+    closing = cv2.morphologyEx(finalImg.astype(np.uint8), cv2.MORPH_CLOSE, kernel)
+    finalImg = cv2.bitwise_or(finalImg, closing)
+
     return finalImg
 
 #project to birds eye view for line detection
 def birdseyeView(img):
     h, w = img.shape[:2]
 
-    src = np.float32([[w, h-60],    # bottom right
-                      [0, h-60],    # bottom left
-                      [350, 500],   # top left
-                      [800, 500]])  # top right
+    src = np.float32([[w, h-250],    # bottom right
+                      [0, h-250],    # bottom left
+                      [450, 500],   # top left
+                      [820, 500]])  # top right
     dst = np.float32([[w, h],       # bottom right
                       [0, h],       # bottom left
                       [0, 0],       # top left

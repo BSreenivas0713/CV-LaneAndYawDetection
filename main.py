@@ -3,15 +3,15 @@ import numpy as np
 import math
 import imgPreprocessing as ip
 
-fileToUse = 7
-folderToUse = "labeled/" if fileToUse <= 5 else "unlabeled/"
+fileToUse = 6
+folderToUse = "labeled/" if fileToUse < 5 else "unlabeled/"
 
 #start video capture
 cap = cv2.VideoCapture(folderToUse + str(fileToUse) + ".hevc")
 
 #get training labels if its a training video
 lines = []
-if fileToUse <= 5:
+if fileToUse < 5:
     with open(folderToUse + str(fileToUse) + ".txt") as f:
         lines = [line.rstrip().split() for line in f]
 
@@ -28,7 +28,7 @@ while cap.isOpened():
     
     finalImg = birdseye
     #display training labels for labeled videos
-    if fileToUse <= 5:
+    if fileToUse < 5:
         yawRads = float(lines[i][1])
         cv2.putText(finalImg, 
                     "radians: " + str(round(yawRads,4)), 
