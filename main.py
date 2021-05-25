@@ -2,7 +2,7 @@ import cv2
 import numpy as np 
 import math
 
-fileToUse = 1
+fileToUse = 8
 folderToUse = "labeled/" if fileToUse <= 5 else "unlabeled/"
 cap = cv2.VideoCapture(folderToUse + str(fileToUse) + ".hevc")
 # dataFile = open("labeled/3.txt")
@@ -21,18 +21,18 @@ while cap.isOpened():
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     #getting white parts of img
-    # equalized = cv2.equalizeHist(gray)
-    # reg2, thresh = cv2.threshold(equalized, 250, 255, cv2.THRESH_BINARY)
+
+    equalized = cv2.equalizeHist(gray)
     ret2, thresh2 = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-    # finalImg = cv2.bitwise_or(finalImg, thresh)
     finalImg = cv2.bitwise_or(finalImg, thresh2)
 
     #getting yellow parts of img
-    yellow_HSV_th_min = (0,90,90)
-    yellow_HSV_th_max = (50,255,255)
-    HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    out = cv2.inRange(HSV, yellow_HSV_th_min,yellow_HSV_th_max)
-    finalImg = cv2.bitwise_or(finalImg, out)
+
+    # yellow_HSV_th_min = (0,90,90)
+    # yellow_HSV_th_max = (50,255,255)
+    # HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    # out = cv2.inRange(HSV, yellow_HSV_th_min,yellow_HSV_th_max)
+    # finalImg = cv2.bitwise_or(finalImg, out)
 
     #getting sobel mask
     sobel_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=9)
@@ -40,16 +40,10 @@ while cap.isOpened():
 
     sobel_mag = np.sqrt(sobel_x ** 2 + sobel_y ** 2)
     sobel_mag = np.uint8(sobel_mag / np.max(sobel_mag) * 255)
-
-    # 
-    # sobel_mag = sobel_mag.astype(np.uint)
     sobel_mag = cv2.equalizeHist(sobel_mag)
-    _, sobel_mag = cv2.threshold(sobel_mag, 170, 255, cv2.THRESH_BINARY)
-    finalImg = cv2.bitwise_or(finalImg, sobel_mag)
+    _, sobel_mag = cv2.threshold(sobel_mag, 200, 255, cv2.THRESH_BINARY)
 
-    kernel = np.ones((5, 5), np.uint8)
-    closing = cv2.morphologyEx(finalImg.astype(np.uint8), cv2.MORPH_CLOSE, kernel)
-    # finalImg = cv2.bitwise_or(finalImg, closing)
+    finalImg = cv2.bitwise_or(finalImg, sobel_mag)
     
     if fileToUse <= 5:
         yawRads = float(lines[i][1])
@@ -62,7 +56,7 @@ while cap.isOpened():
                     (50,80), cv2.FONT_HERSHEY_SIMPLEX, 
                     1, (255,255,255), 2, cv2.LINE_4)
 
-    cv2.imshow('frame', sobel_mag)
+    cv2.imshow('frame', finalImg)
     # cv2.moveWindow('frame', -1300,-600)
     cv2.moveWindow('frame', 100, -100)
 
