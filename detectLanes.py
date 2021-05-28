@@ -20,6 +20,22 @@ class Line():
     def avgCoefs(self):
         #avg over columns of recentCoefs, i.e. over each coef
         return np.mean(self.recentCoefs, axis = 0)
+
+    def draw(self, img, color=(0,255,0)):
+        height, width = img.shape[:2]
+        lineWidth = 50
+
+        yLinspace = np.linspace(0,height - 1, height)
+        coeff = self.avgCoefs()
+        lineCenter = coeff[0] * yLinspace ** 2 + coeff[1] * yLinspace + coeff[2]
+        lineLeft = lineCenter - lineWidth//2
+        lineRight = lineCenter + lineWidth//2
+
+        leftPts = np.array([np.transpose(np.vstack([lineLeft, yLinspace]))])
+        rightPts = np.array([np.flipud(np.transpose(np.vstack([lineRight, yLinspace])))])
+        pts = np.hstack((leftPts, rightPts))
+        cv2.fillPoly(img, [np.int_(pts)], color)
+        return img
         
 
 #input: birdseye view
@@ -98,26 +114,18 @@ def slidingWindowSearch(img, leftLaneLine, rightLaneLine, numWindows=9):
         left_coefficients = leftLaneLine.coefficients
         detected = False
     else:
-        left_coefficients = np.polyfit(leftLaneLine.xCoords, leftLaneLine.yCoords, 2)
+        left_coefficients = np.polyfit(leftLaneLine.yCoords, leftLaneLine.xCoords, 2)
     
     if not list(rightLaneLine.xCoords) or not list(rightLaneLine.yCoords):
         right_coefficients = rightLaneLine.coefficients
         detected = False
     else:
-        right_coefficients = np.polyfit(rightLaneLine.xCoords, rightLaneLine.yCoords, 2)
+        right_coefficients = np.polyfit(rightLaneLine.yCoords, rightLaneLine.xCoords, 2)
     
     leftLaneLine.update(left_coefficients, detected)
     rightLaneLine.update(right_coefficients, detected)
 
     res[nonzeroY[leftLaneIdx], nonzeroX[leftLaneIdx]] = [0,255,0]
     res[nonzeroY[rightLaneIdx], nonzeroX[rightLaneIdx]] = [0,0,255]
-    # res[img.nonzero()] = [255,0,0]
-    # print(list(zip(list(range(50,251)),img[300][50:250])))
-    # print(list(zip(img.nonzero()[0],img.nonzero()[1])))
-    # print("---------------------")
-    # print("---------------------")
-    # print("---------------------")
-    # print("---------------------")
-    # print("---------------------")
 
     return res, leftLaneLine, rightLaneLine
