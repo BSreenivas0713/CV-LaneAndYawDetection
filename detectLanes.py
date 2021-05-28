@@ -45,8 +45,8 @@ def slidingWindowSearch(img, leftLaneLine, rightLaneLine, numWindows=9):
     currRightLaneX = rightLaneBaseX
 
     nonzeroPts = img.nonzero()
-    nonzeroX = np.array(nonzeroPts[0])
-    nonzeroY = np.array(nonzeroPts[1])
+    nonzeroY = np.array(nonzeroPts[0])
+    nonzeroX = np.array(nonzeroPts[1])
 
     windowHeight = height // numWindows
     #how wide 
@@ -111,8 +111,13 @@ def slidingWindowSearch(img, leftLaneLine, rightLaneLine, numWindows=9):
 
     res[nonzeroY[leftLaneIdx], nonzeroX[leftLaneIdx]] = [0,255,0]
     res[nonzeroY[rightLaneIdx], nonzeroX[rightLaneIdx]] = [0,0,255]
-    # res[300,nonzeroX[(nonzeroY == 300)]] = [255,0,0]
-    # print(img[300][50:250])
-    # print(nonzeroX[(nonzeroY == 300)])
+    # res[img.nonzero()] = [255,0,0]
+    # print(list(zip(list(range(50,251)),img[300][50:250])))
+    # print(list(zip(img.nonzero()[0],img.nonzero()[1])))
+    # print("---------------------")
+    # print("---------------------")
+    # print("---------------------")
+    # print("---------------------")
+    # print("---------------------")
 
     return res, leftLaneLine, rightLaneLine

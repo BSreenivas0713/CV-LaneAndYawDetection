@@ -4,6 +4,7 @@ import math
 import imgPreprocessing as ip
 import sys
 import detectLanes as dl
+import time
 
 leftLaneLine = dl.Line()
 rightLaneLine = dl.Line()
@@ -53,6 +54,7 @@ def main(fileToUse, folderToUse):
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
         i += 1
+        
 
     cap.release()
     cv2.destroyAllWindows()
