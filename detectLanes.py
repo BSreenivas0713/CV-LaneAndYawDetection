@@ -15,6 +15,7 @@ class Line():
 
     def update(self, newCoefs, detected):
         self.recentCoefs.append(newCoefs)
+        self.coefficients = newCoefs
         self.detected = detected
 
     def avgCoefs(self):
