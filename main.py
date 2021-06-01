@@ -78,12 +78,12 @@ def main(fileToUse, folderToUse):
 
         birdseye,_,Minv = ip.birdseyeView(thresholded)
 
-        # lanesDetected, leftLaneLine, rightLaneLine = dl.slidingWindowSearch(birdseye, leftLaneLine, rightLaneLine)
+        lanesDetected, leftLaneLine, rightLaneLine = dl.slidingWindowSearch(birdseye, leftLaneLine, rightLaneLine)
         
-        # linesDewarped = projectLineOntoRoad(frame, leftLaneLine, rightLaneLine, Minv)
+        linesDewarped = projectLineOntoRoad(frame, leftLaneLine, rightLaneLine, Minv)
 
         matches = fp.getFeatures(birdseye)
-        finalImg = frame
+        finalImg = linesDewarped
 
         totalV = None
         numTimes = 0
