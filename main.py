@@ -2,6 +2,7 @@ import cv2
 import numpy as np 
 import math
 import imgPreprocessing as ip
+import featureProcessing
 import sys
 import detectLanes as dl
 import time
@@ -67,9 +68,16 @@ def main(fileToUse, folderToUse):
         lanesDetected, leftLaneLine, rightLaneLine = dl.slidingWindowSearch(birdseye, leftLaneLine, rightLaneLine)
         
         linesDewarped = projectLineOntoRoad(frame, leftLaneLine, rightLaneLine, Minv)
+
+        fp = featureProcessing.FeatureProcessing()
+        kps, des = fp.getFeatures(frame)
+        finalImg = linesDewarped
+
+        for p in kps:
+            u,v = map(lambda x: int(round(x)), p.pt)
+            cv2.circle(finalImg, (u,v), color=(0,255,0), radius=3)
         
         # print(leftLaneLine.xCoords)
-        finalImg = linesDewarped
         #display training labels for labeled videos
         if fileToUse < 5:
             yawRads = float(lines[i][1])
