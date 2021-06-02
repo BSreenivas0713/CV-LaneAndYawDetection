@@ -10,3 +10,5 @@ Yaw Rate reporting preview:
 https://youtube.com/embed/wTH6MbjkhVY
 Here, I use OpenCV feature detection and feature matching in order to determine the general delta of the frames, and then I compare this delta to the vector of going straight ahead. The angle between these two vectors is the car's current yaw.
 
+As you can see in the yaw rate reporting, the green arrow changes along with the direction of car travel. For example, when turning, the yaw arrow will move in the turning direction.
+
