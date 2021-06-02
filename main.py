@@ -65,7 +65,10 @@ def main(fileToUse, folderToUse):
     
     fp = featureProcessing.FeatureProcessing()
 
-    avgMatchingDirection = deque(maxlen=50)
+    avgMatchingDirection = deque(maxlen=30)
+
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+    writer = cv2.VideoWriter("output" + str(fileToUse) + ".mp4", fourcc, 20, (1164, 874))
 
     i=0
     while cap.isOpened():
@@ -82,7 +85,9 @@ def main(fileToUse, folderToUse):
         
         linesDewarped = projectLineOntoRoad(frame, leftLaneLine, rightLaneLine, Minv)
 
-        matches = fp.getFeatures(birdseye)
+        colorBirdseye,_,_ = ip.birdseyeView(frame)
+
+        matches = fp.getFeatures(colorBirdseye)
         finalImg = linesDewarped
 
         totalV = None
@@ -103,41 +108,61 @@ def main(fileToUse, folderToUse):
                 else:
                     totalV += vHat
                 numTimes += 1
-            # cv2.circle(finalImg, (u1,v1), color=(0,255,0), radius=3)
-            # cv2.line(finalImg, (u1,v1), (u2,v2), color=(255,0,0))
+            cv2.circle(colorBirdseye, (u1,v1), color=(0,255,0), radius=3)
+            cv2.line(colorBirdseye, (u1,v1), (u2,v2), color=(255,0,0))
         # print(totalV)
         if totalV is not None:
             currAvgX, currAvgY = totalV / numTimes
             avgMatchingDirection.append((currAvgX,currAvgY))
             avgX, avgY = findMatchingDirection(avgMatchingDirection)
-            cv2.putText(finalImg, 
-                            "avgX: " + str(1000*round(avgX,4)), 
-                            (50,110), cv2.FONT_HERSHEY_SIMPLEX, 
-                            1, (255,255,255), 2, cv2.LINE_4)
-            cv2.putText(finalImg, 
-                            "avgY: " + str(1000*round(avgY,4)), 
-                            (50,140), cv2.FONT_HERSHEY_SIMPLEX, 
-                            1, (255,255,255), 2, cv2.LINE_4)
+            # cv2.putText(finalImg, 
+            #                 "avgX: " + str(1000*round(avgX,4)), 
+            #                 (50,110), cv2.FONT_HERSHEY_SIMPLEX, 
+            #                 1, (255,255,255), 2, cv2.LINE_4)
+            # cv2.putText(finalImg, 
+            #                 "avgY: " + str(1000*round(avgY,4)), 
+            #                 (50,140), cv2.FONT_HERSHEY_SIMPLEX, 
+            #                 1, (255,255,255), 2, cv2.LINE_4)
             xBase = 500
             yBase = 500
-            cv2.arrowedLine(finalImg, (xBase,yBase), (int(xBase+1000*avgX),int(yBase+1000*avgY)), color=(255,0,0), thickness=5)
+            xAxis = 0
+            yAxis = -250
+            cosAngle = np.cos(11*math.pi/180)
+            sinAngle = np.sin(11*math.pi/180)
+            newX = cosAngle * avgX - sinAngle * avgY
+            newY = sinAngle * avgX + cosAngle * avgY
+            vec1 = [newX, newY] / np.linalg.norm([newX, newY])
+            vec2 = [xAxis, yAxis] / np.linalg.norm([xAxis, yAxis])
+            dot = np.dot(vec1, vec2)
+            angle = np.arccos(dot)
+            cv2.putText(finalImg, 
+                        "processed radians: " + str(round(angle,4)), 
+                        (50,50), cv2.FONT_HERSHEY_SIMPLEX, 
+                        1, (255,255,255), 2, cv2.LINE_4)
+            cv2.putText(finalImg, 
+                        "processed degrees: " + str(round(angle*180/math.pi, 4)), 
+                        (50,80), cv2.FONT_HERSHEY_SIMPLEX, 
+                        1, (255,255,255), 2, cv2.LINE_4)
+            cv2.arrowedLine(finalImg, (xBase,yBase), (int(xBase+500*newX),int(yBase+500*newY)), color=(0,255,0), thickness=5)
+            # cv2.arrowedLine(finalImg, (xBase,yBase), (int(xBase+1000*avgX),int(yBase+1000*avgY)), color=(0,0,255), thickness=5)
         
         # print(leftLaneLine.xCoords)
         #display training labels for labeled videos
-        if fileToUse < 5:
-            yawRads = float(lines[i][1])
-            cv2.putText(finalImg, 
-                        "radians: " + str(round(yawRads,4)), 
-                        (50,50), cv2.FONT_HERSHEY_SIMPLEX, 
-                        1, (255,255,255), 2, cv2.LINE_4)
-            cv2.putText(finalImg,
-                        "degrees: " + str(round(yawRads*180/math.pi, 4)), 
-                        (50,80), cv2.FONT_HERSHEY_SIMPLEX, 
-                        1, (255,255,255), 2, cv2.LINE_4)
+        # if fileToUse < 5:
+        #     yawRads = float(lines[i][1])
+        #     cv2.putText(finalImg, 
+        #                 "radians: " + str(round(yawRads,4)), 
+        #                 (50,50), cv2.FONT_HERSHEY_SIMPLEX, 
+        #                 1, (255,255,255), 2, cv2.LINE_4)
+        #     cv2.putText(finalImg,
+        #                 "degrees: " + str(round(yawRads*180/math.pi, 4)), 
+        #                 (50,80), cv2.FONT_HERSHEY_SIMPLEX, 
+        #                 1, (255,255,255), 2, cv2.LINE_4)
 
         cv2.imshow('frame', finalImg)
-        # cv2.moveWindow('frame', -1300,-600)
-        cv2.moveWindow('frame', 100, -100)
+        writer.write(finalImg)
+        cv2.moveWindow('frame', -1300,-600)
+        # cv2.moveWindow('frame', 100, -100)
 
         #quit on 'q' press
         if cv2.waitKey(25) & 0xFF == ord('q'):
