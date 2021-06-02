@@ -2,7 +2,7 @@ This project uses computer vision concepts to perform lane detection and yaw rat
 on road car videos.
 
 Lane Detection preview:
-
+https://youtube.com/embed/AwJPlQezIqQ
 Here, I use a sliding window search over the entire frame after thresholding it to a black-and-white image
 in order to identify the lane lines in the image.
 
