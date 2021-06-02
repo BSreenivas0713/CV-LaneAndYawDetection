@@ -1,0 +1,12 @@
+This project uses computer vision concepts to perform lane detection and yaw rate reporting
+on road car videos.
+
+Lane Detection preview:
+
+Here, I use a sliding window search over the entire frame after thresholding it to a black-and-white image
+in order to identify the lane lines in the image.
+
+Yaw Rate reporting preview:
+
+Here, I use OpenCV feature detection and feature matching in order to determine the general delta of the frames, and then I compare this delta to the vector of going straight ahead. The angle between these two vectors is the car's current yaw.
+
